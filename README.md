@@ -1,0 +1,3 @@
+- run make. This creates the 'locker' program
+- run download-and-extract-image.sh. This creates the 'container' directory containing the alpine image
+- run sudo ./locker
