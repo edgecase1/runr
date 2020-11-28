@@ -13,7 +13,7 @@ static int
 container_setup(void *arg)
 {
     char **args = arg;
-    char* new_root = "/home/sba/locker/container";
+    char* new_root = "container";
     char* put_old = "oldroot";
     char path[PATH_MAX];
 
@@ -125,7 +125,7 @@ main(int argc, char *argv[])
     // download alpine
     // check existing target
     if (stat("container", &st) != 0) {
-        perror("directory 'container' not present");
+        perror("directory 'container' not present. Download an image and extract it to container/ !");
 	exit(1);
     }
 
