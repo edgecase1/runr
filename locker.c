@@ -126,32 +126,32 @@ main(int argc, char *argv[])
     // check existing target
     if (stat("container", &st) != 0) {
         perror("directory 'container' not present. Download an image and extract it to container/ !");
-	exit(1);
+        exit(1);
     }
 
     // create a new namespace
     // unshare(CLONE_NEWNS|CLONE_NEWPID) is implemented via clone
     // clone is like fork, but more control
     // we also have to care to create a stack 
-    char *stack = mmap(NULL, 
-		       STACK_SIZE, 
-		       PROT_READ | PROT_WRITE,  // rw-
+    char *stack = mmap(NULL,
+                       STACK_SIZE,
+                       PROT_READ | PROT_WRITE,  // rw-
                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, // private stack, not shared
-		       -1, 
-		       0);
+                       -1,
+                       0);
     if (stack == MAP_FAILED)
     {
-                perror("mmap");
-                exit(1);
+        perror("mmap");
+        exit(1);
     }
     if ((child_pid = clone(container_setup,        // called routine          
-	      stack + STACK_SIZE,
-              CLONE_NEWNS | SIGCHLD,  // we want only selected namespaces
-	      &argv[1])) == -1)
+                           stack + STACK_SIZE,
+                           CLONE_NEWNS | SIGCHLD,  // we want only mnt namespace CLONE_CGROUP
+                           &argv[1])) == -1)
     {
-                perror("clone");
-		exit(1);
-    } 
+        perror("clone");
+        exit(1);
+    }
     printf("child pid is %d\n", child_pid);
     /* Parent falls through to here; wait for child */
 
@@ -159,11 +159,11 @@ main(int argc, char *argv[])
     if (wait(NULL) == -1)
     {
         perror("error waiting");
-	exit(1);
+        exit(1);
     }
     // clean up
     printf("\nfather cleans up.\n");
 
     printf("exit\n");
     exit(EXIT_SUCCESS);
-} 
+}
