@@ -12,9 +12,8 @@
 #define CGROUP_DEVICES_ALLOW "%s/devices.allow"
 #define CGROUP_DEVICES_PROCS "%s/cgroup.procs"
 
-#define BLOCKDEVICES_ALL "b *:* rwm"
-#define ALL_DEVICES_ALL "a *:* rwm"
-#define BLOCKDEVICES_READ "b *:* r"
+#define ALL_DEVICES "a *:* rwm"
+#define READ_BLOCKDEVICES "b *:* r"
 
 
 // is /proc mounted?
@@ -41,7 +40,7 @@ create_sub_devicecgroup(char* cgroup_name)
 }
 
 void
-deny_devices(char* cgroup_name)
+deny_devices(char* mask, char* cgroup_name)
 {
     FILE* f_devices_deny;
 
@@ -56,14 +55,14 @@ deny_devices(char* cgroup_name)
 
     f_devices_deny = fopen(devices_deny, "w");
     // error open
-    if(fprintf(f_devices_deny, ALL_DEVICES_ALL) == -1) {
+    if(fprintf(f_devices_deny, mask) == -1) {
         perror("could not read file");
     }
     fclose(f_devices_deny);
 }
 
 void
-allow_devices(char* cgroup_name)
+allow_devices(char* mask, char* cgroup_name)
 {
     FILE* f_devices_allow;
 
@@ -78,7 +77,7 @@ allow_devices(char* cgroup_name)
 
     f_devices_allow = fopen(devices_allow, "w");
     // error open
-    if(fprintf(f_devices_allow, BLOCKDEVICES_READ) == -1) {
+    if(fprintf(f_devices_allow, mask) == -1) {
         perror("could not read file");
     }
     fclose(f_devices_allow);
@@ -104,7 +103,6 @@ add_pid_to_cgroup(pid_t pid, char* cgroup_name)
         perror("could not add pid to cgroup");
     }
     fclose(f_cgroup_procs);
-
 }
 
 // this process
@@ -119,8 +117,8 @@ add_self_to_cgroup(char* cgroup_name)
 /*
 int main() {
     create_sub_devicecgroup("locker2");
-    deny_devices("locker2");
-    allow_devices("locker2");
+    deny_devices(ALL_DEVICES, "locker2");
+    allow_devices(READ_BLOCKDEVICES, "locker2");
     add_self_to_cgroup("locker2");
 
     execve("/bin/sh", NULL, NULL);
