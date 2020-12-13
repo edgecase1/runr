@@ -1,4 +1,3 @@
-
 #define _GNU_SOURCE
 
 #include <sched.h>
@@ -6,13 +5,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/mount.h>
 #include <sys/syscall.h>
 #include <sys/wait.h>
+
+#include <sys/sysmacros.h>
+
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <limits.h>
+#include <fcntl.h>
 
 #include "utils.h"
 

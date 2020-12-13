@@ -6,15 +6,13 @@
 #include <stdio.h>
 #include <sys/types.h>
 
+#include "cgroups.h"
+
 #define CGROUP_DEVICES "/sys/fs/cgroup/devices/%s"
 #define CGROUP_DEVICES_DENY "%s/devices.deny"
 #define CGROUP_DEVICES_LIST "%s/devices.list"
 #define CGROUP_DEVICES_ALLOW "%s/devices.allow"
 #define CGROUP_DEVICES_PROCS "%s/cgroup.procs"
-
-#define ALL_DEVICES "a *:* rwm"
-#define READ_BLOCKDEVICES "b *:* r"
-
 
 // is /proc mounted?
 // is /sys mounted?
@@ -31,11 +29,24 @@ create_sub_devicecgroup(char* cgroup_name)
 {
     char subgroup_path[255];
     sprintf(subgroup_path, CGROUP_DEVICES, cgroup_name); 
-    printf(">%s<\n", subgroup_path);
+
     // check if file exists
     if(mkdir(subgroup_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1)
     {
         perror("error creating subgroup");
+    }
+}
+
+void
+delete_sub_devicecgroup(char* cgroup_name)
+{
+    char subgroup_path[255];
+    sprintf(subgroup_path, CGROUP_DEVICES, cgroup_name); 
+
+    // check if file exists
+    if(rmdir(subgroup_path) == -1)
+    {
+        perror("error deleting subgroup");
     }
 }
 
@@ -51,7 +62,6 @@ deny_devices(char* mask, char* cgroup_name)
     sprintf(devices_deny, CGROUP_DEVICES_DENY, cgroup_path);
 
     // check if file is accessible
-    printf(">%s<\n", devices_deny);
 
     f_devices_deny = fopen(devices_deny, "w");
     // error open
@@ -73,8 +83,7 @@ allow_devices(char* mask, char* cgroup_name)
     sprintf(devices_allow, CGROUP_DEVICES_ALLOW, cgroup_path);
 
     // check if file is accessible
-    printf(">%s<\n", devices_allow);
-
+    
     f_devices_allow = fopen(devices_allow, "w");
     // error open
     if(fprintf(f_devices_allow, mask) == -1) {
@@ -95,7 +104,6 @@ add_pid_to_cgroup(pid_t pid, char* cgroup_name)
     sprintf(cgroup_procs, CGROUP_DEVICES_PROCS, cgroup_path);
 
     // check if file is accessible
-    printf(">%s<\n", cgroup_procs);
 
     f_cgroup_procs = fopen(cgroup_procs, "w");
     // error open

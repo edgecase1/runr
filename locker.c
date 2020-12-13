@@ -1,4 +1,5 @@
 #include "locker.h"
+#include "cgroups.h"
 
 /*
  * a lame docker-like container implementation
@@ -17,6 +18,19 @@ container_setup(void *arg)
     char* put_old = "oldroot";
     char path[PATH_MAX];
 
+    // block devices on cgroups_devices
+    create_sub_devicecgroup("locker");
+    allow_devices(ALL_DEVICES, "locker");
+    // mknod TODO but dev not mounted yet
+    /*
+    dev_t dev = makedev(8, 1); 
+    if(mknod("/dev/sda1", S_IFBLK|0660, dev) != 0)
+    {
+        perror("mknod");
+    }*/
+    //deny_devices(ALL_DEVICES, "locker");
+    //allow_devices(READ_BLOCKDEVICES, "locker");
+    add_self_to_cgroup("locker");
 
     // stop propagation of mount events to the initial namespace
     if (mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, NULL) == 1)
@@ -58,10 +72,12 @@ container_setup(void *arg)
     // inspiration from docker strace
 
     // /dev
+    /*
     if(mount("dev", "/dev", "tmpfs", MS_NOSUID|MS_STRICTATIME, "mode=755,size=65536k") != 0) 
     {
         perror("error mounting dev");
     }
+    */
 
     mkdir("/dev/pts", 0755);
     // /dev/pts
@@ -84,9 +100,18 @@ container_setup(void *arg)
     {
         perror("error mounting sys");
     }
+    /*
+    // tmpfs on /sys/fs/cgroup type tmpfs (ro,nosuid,nodev,noexec,mode=755)
+    // mkdir("/sys/fs/cgroup/devices", 0755);
+    // cgroup on /sys/fs/cgroup/devices type cgroup (rw,nosuid,nodev,noexec,relatime,devices)
+    if (mount("cgroup", "/sys/fs/cgroup/devices", "cgroup", MS_NOSUID|MS_NODEV|MS_NOEXEC, "devices") != 0)
+    {
+        perror("error mounting cgroup devices");
+    }
+    */
     ///dev/mqueue
-    
-    // mknod
+
+
 
     // umount -l /oldroot
     if (umount2(put_old, MNT_DETACH) == -1)
@@ -100,6 +125,8 @@ container_setup(void *arg)
 
     //ls("/sys");
     //ls("/proc");
+    
+
 
     // set user mapping in namespace (TODO)
     // set target user ids
@@ -146,7 +173,7 @@ main(int argc, char *argv[])
     }
     if ((child_pid = clone(container_setup,        // called routine          
                            stack + STACK_SIZE,
-                           CLONE_NEWNS | SIGCHLD,  // we want only mnt namespace CLONE_CGROUP
+                           CLONE_NEWNS | CLONE_NEWCGROUP | SIGCHLD, 
                            &argv[1])) == -1)
     {
         perror("clone");
@@ -163,6 +190,7 @@ main(int argc, char *argv[])
     }
     // clean up
     printf("\nfather cleans up.\n");
+    // delete cgroup
 
     printf("exit\n");
     exit(EXIT_SUCCESS);
