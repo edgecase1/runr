@@ -1,5 +1,6 @@
 #include "locker.h"
 #include "cgroups.h"
+#include "capabilities.h"
 
 /*
  * a lame docker-like container implementation
@@ -123,22 +124,45 @@ container_setup(void *arg)
         perror("rmdir oldroot");
     }
 
-    //ls("/sys");
-    //ls("/proc");
-    
-
+    /* capabilties 
+    if(drop_cap_dangerous() == -1)
+    {
+        perror("error cap");
+    }*/
 
     // set user mapping in namespace (TODO)
-    // set target user ids
-    //setgid(1000);
-    //setuid(1000);
+    prep_cap();
 
-    // capabilties (TODO)
+    int uid = 1000;
+    int gid = 1000;
+    printf("resuid to %d %d\n", uid, gid);
+    // dropping supplementary groups
+    if(setgroups(0, NULL) == -1) // no groups
+    {
+        perror("error setgroups");
+        exit(1);
+    }
+    //setuid(1000);
+    //setgid(1000);
+    if(setreuid(uid, uid) == -1)
+    {
+        perror("error resuid");
+        exit(1);
+    }
+    if(setregid(gid, gid) == -1)
+    {
+        perror("error resgid");
+        exit(1);
+    }
+
+
+    printf("now running as uid=%d, euid=%d\n", getuid(), geteuid());
     
     // exec the target process
     //execv("/busybox-x86_64", &args[0]);
     char *argv[] = {"/bin/busybox", "sh", 0};
-    execv("/bin/busybox", argv);
+    printf("execve into '%s'\n", argv[0]); 
+    execv(argv[0], argv);
 }
 
 // creates a namespace and passes control to container_setup
