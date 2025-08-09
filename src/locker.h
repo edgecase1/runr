@@ -17,8 +17,6 @@
 #include <limits.h>
 #include <fcntl.h>
 
-#include "utils.h"
-
 #define DEBUG 0
 #define INFO 1
 #define WARNING 2
