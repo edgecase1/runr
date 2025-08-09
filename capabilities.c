@@ -25,14 +25,14 @@ prep_cap()
         return -1;
     }
 
-    // raising inhertiable capabilties for execve
+    // raising inhertiable capabilties for execve (legacy)
+    // https://lwn.net/Articles/636533/
     if(cap_set_flag(caps, CAP_INHERITABLE, ncap, cap_list, CAP_SET) == -1)
     {
         perror("error cap_set_flag effective");
         cap_free(caps);
 	return -1;
     }
-
     if(cap_set_proc(caps) == -1)
     {
         perror("error cap_set_proc");
@@ -43,7 +43,7 @@ prep_cap()
     {
         perror("error cap_free");
     }
-
+    
     // raising ambient capabilties for execve
     for(int i=0; i < ncap; i++)
     { 

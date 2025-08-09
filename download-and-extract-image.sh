@@ -30,3 +30,5 @@ if [ -f $LOCAL_FILE ] ; then
      fi 
      chmod 755 $CONTAINER_DIR
 fi
+
+echo "Your container image can be found in '$CONTAINER_DIR'"

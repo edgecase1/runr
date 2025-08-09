@@ -1,3 +1,21 @@
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <grp.h>
+
+#define _GNU_SOURCE
+#include <sched.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+
+#include <stdlib.h>
+#include <linux/sched.h>    /* Definition of struct clone_args */
+#include <sched.h>          /* Definition of CLONE_* constants */
+#include <sys/syscall.h>    /* Definition of SYS_* constants */
+
 #include "locker.h"
 #include "cgroups.h"
 #include "capabilities.h"
@@ -20,8 +38,8 @@ container_setup(void *arg)
     char path[PATH_MAX];
 
     // block devices on cgroups_devices
-    create_sub_devicecgroup("locker");
-    allow_devices(ALL_DEVICES, "locker");
+    //create_sub_devicecgroup("locker");
+    //allow_devices(ALL_DEVICES, "locker");
     // mknod TODO but dev not mounted yet
     /*
     dev_t dev = makedev(8, 1); 
@@ -31,7 +49,7 @@ container_setup(void *arg)
     }*/
     //deny_devices(ALL_DEVICES, "locker");
     //allow_devices(READ_BLOCKDEVICES, "locker");
-    add_self_to_cgroup("locker");
+    //add_self_to_cgroup("locker");
 
     // stop propagation of mount events to the initial namespace
     if (mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, NULL) == 1)
@@ -198,7 +216,7 @@ main(int argc, char *argv[])
     if ((child_pid = clone(container_setup,        // called routine          
                            stack + STACK_SIZE,
                            CLONE_NEWNS | CLONE_NEWCGROUP | SIGCHLD, 
-                           &argv[1])) == -1)
+                           NULL)) == -1)
     {
         perror("clone");
         exit(1);
