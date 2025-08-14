@@ -37,9 +37,15 @@ container_setup(void *arg)
     char* put_old = "oldroot";
     char path[PATH_MAX];
 
-    // block devices on cgroups_devices
-    //create_sub_devicecgroup("locker");
+    delete_sub_devicecgroup("locker");
+    // create a separate cgroups
+    create_sub_devicecgroup("locker");
     //allow_devices(ALL_DEVICES, "locker");
+
+    //deny_devices(ALL_DEVICES, "locker");
+    //allow_devices(READ_BLOCKDEVICES, "locker");
+    add_self_to_cgroup("locker");
+    
     // mknod TODO but dev not mounted yet
     /*
     dev_t dev = makedev(8, 1); 
@@ -47,9 +53,6 @@ container_setup(void *arg)
     {
         perror("mknod");
     }*/
-    //deny_devices(ALL_DEVICES, "locker");
-    //allow_devices(READ_BLOCKDEVICES, "locker");
-    //add_self_to_cgroup("locker");
 
     // stop propagation of mount events to the initial namespace
     if (mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, NULL) == 1)
@@ -119,15 +122,15 @@ container_setup(void *arg)
     {
         perror("error mounting sys");
     }
-    /*
+
     // tmpfs on /sys/fs/cgroup type tmpfs (ro,nosuid,nodev,noexec,mode=755)
-    // mkdir("/sys/fs/cgroup/devices", 0755);
-    // cgroup on /sys/fs/cgroup/devices type cgroup (rw,nosuid,nodev,noexec,relatime,devices)
-    if (mount("cgroup", "/sys/fs/cgroup/devices", "cgroup", MS_NOSUID|MS_NODEV|MS_NOEXEC, "devices") != 0)
+    /*
+    mkdir("/sys/fs/cgroup", 0755);
+    if (mount("cgroup2", "/sys/fs/cgroup", "cgroup2", MS_NOSUID|MS_NODEV|MS_NOEXEC, 0) != 0)
     {
-        perror("error mounting cgroup devices");
-    }
-    */
+        perror("error mounting cgroup");
+    }*/
+    
     ///dev/mqueue
 
 
