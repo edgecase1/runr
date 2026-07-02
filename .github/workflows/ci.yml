@@ -1,0 +1,19 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  trivy-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: install dependencies
+        run: |
+          sudo apt-get update -y && sudo apt-get install golang-go
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: run
+        run: |
+          docker ps
