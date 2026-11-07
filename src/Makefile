@@ -1,7 +1,7 @@
 .PHONY: all 
 
-all: locker
+all: runr
 
-locker: locker.c cgroups.c capabilities.c
-	gcc -Wno-implicit-function-declaration -Wl,--no-as-needed -o locker locker.c cgroups.c capabilities.c -lcap
+runr: locker.c cgroups.c capabilities.c
+	gcc -Wno-implicit-function-declaration -Wl,--no-as-needed -o runr locker.c cgroups.c capabilities.c -lcap
 

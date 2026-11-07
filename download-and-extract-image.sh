@@ -2,7 +2,7 @@
 
 LOCAL_FILE="alpine-minirootfs-3.9.0-x86_64.tar.gz"
 TARGET_URL="http://dl-cdn.alpinelinux.org/alpine/v3.9/releases/x86_64/alpine-minirootfs-3.9.0-x86_64.tar.gz"
-CONTAINER_DIR="container"
+CONTAINER_DIR="rootfs"
 
 perror()
 {
