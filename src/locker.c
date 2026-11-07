@@ -33,7 +33,7 @@ static int
 container_setup(void *arg)
 {
     char **args = arg;
-    char* new_root = "container";
+    char* new_root = "rootfs";
     char* put_old = "oldroot";
     char path[PATH_MAX];
 
@@ -70,7 +70,7 @@ container_setup(void *arg)
     /* at this point we can spawn a shell and we have a private mnt namespace */
 
     // TODO DEBUG bind dev and pts
-    /*if(mount("/dev", "container/dev", 0, MS_BIND, 0) != 0) 
+    /*if(mount("/dev", "rootfs/dev", 0, MS_BIND, 0) != 0) 
     {
         perror("bind dev");
     }*/
@@ -196,8 +196,8 @@ main(int argc, char *argv[])
     // extract the image
     // download alpine
     // check existing target
-    if (stat("container", &st) != 0) {
-        perror("directory 'container' not present. Download an image and extract it to container/ !");
+    if (stat("rootfs", &st) != 0) {
+        perror("directory 'rootfs' not present. Download an image and extract it to rootfs/ !");
         exit(1);
     }
 
